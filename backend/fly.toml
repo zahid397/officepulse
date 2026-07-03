@@ -1,0 +1,23 @@
+# backend/fly.toml
+# Deploy with:  fly launch --no-deploy   (first time, answer "no" to Postgres/Redis prompts)
+#               fly secrets set SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... DISCORD_TOKEN=... FRONTEND_ORIGIN=https://your-frontend.vercel.app
+#               fly deploy
+app = "officepulse-backend"        # change to whatever name you picked in `fly launch`
+primary_region = "sin"             # pick the region closest to you/judges
+
+[build]
+
+[env]
+  PORT = "8080"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false       # keep it running — Socket.io + Discord bot need a live connection
+  auto_start_machines = true
+  min_machines_running = 1         # stays within the free 3-VM allowance
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
