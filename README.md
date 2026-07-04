@@ -1,214 +1,298 @@
-# OfficePulse — Smart Office Power Monitoring System
+<div align="center">
 
-> Real-time office power monitoring for **15 devices** (2 fans + 3 lights per room × 3 rooms) with a live web dashboard, automatic device simulator, smart alerts, and a Discord bot — built for hackathons.
+# ⚡ OfficePulse
+### Smart Office Power Monitoring System
 
----
+<br>
 
-## 📌 Project Overview
+![React](https://img.shields.io/badge/React_18-149ECA?style=for-the-badge&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite_5-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-**OfficePulse** is a smart office power monitoring system that tracks the ON/OFF
-status and power consumption of **fans and lights** across three office rooms.
-A backend simulator continuously toggles devices, all state is persisted to
-Supabase, and updates are pushed to a real-time web dashboard over Socket.io.
-A Discord bot lets admins query status, per-room usage, total energy, and
-active alerts from any channel.
+![Node](https://img.shields.io/badge/Node.js_18-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express_4-000000?style=for-the-badge&logo=express&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io_4-010101?style=for-the-badge&logo=socket.io&logoColor=white)
+![Discord.js](https://img.shields.io/badge/Discord.js_14-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-> **Corrected device count (problem statement v1.2):** the office has exactly
-> **15 devices** — 3 rooms × (2 fans + 3 lights). There are **no AC units**.
-> Maximum possible power draw is **495 W** (165 W per room × 3 rooms).
+<br>
 
-The system was designed as a hackathon-ready project: it works out of the box
-with a local seed dataset, degrades gracefully when Supabase or Discord are
-unavailable, and ships with a clean dark dashboard, demo script, and full
-documentation.
+![Live Demo](https://img.shields.io/badge/live_demo-static_%2B_zero_backend-22c55e?style=flat-square)
+![Devices](https://img.shields.io/badge/devices-15_%286_fans_%2F_9_lights%29-3b82f6?style=flat-square)
+![Max Load](https://img.shields.io/badge/max_load-495W-f59e0b?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
----
+<sub>Built for **Techathon Nationals & Rover Summit** · IUT Robotics Society × Okkhor Technology</sub>
 
-## 🧩 Problem Statement
+<br>
 
-Small and medium offices waste significant electricity because there is **no
-real-time visibility** into which devices are running, when, and for how long.
-Common scenarios:
+**[🚀 Live Demo](https://openoffice.netlify.app/)**
 
-- Lights left ON overnight or over the weekend.
-- Fans running for hours in empty meeting rooms.
-- No single dashboard to answer "how much power is the office drawing right
-  now?".
-- No alerting when devices run outside office hours.
+</div>
 
-Without monitoring, energy waste is invisible — and what you cannot see, you
-cannot fix.
+<br>
+
+> **TL;DR** — A live dashboard + Discord bot that monitor 15 office devices (fans & lights) across 3 rooms, flag wasted energy, and never go down. The deployed demo runs a client-side simulation for 100% uptime reliability; the full Express + Socket.io + Supabase + Discord backend is included, working, and one `fly deploy` away from going live for real.
+
+<br>
 
 ---
 
-## ✅ Solution
+## 📑 Table of Contents
 
-OfficePulse provides:
+- [🧩 The Problem](#-the-problem)
+- [✅ The Solution](#-the-solution)
+- [✨ Features](#-features)
+- [🧱 Tech Stack](#-tech-stack)
+- [🏛️ Architecture — Two Modes, One UI](#️-architecture--two-modes-one-ui)
+- [🧠 Key Engineering Decisions](#-key-engineering-decisions)
+- [🚀 Quick Start](#-quick-start)
+- [🔌 API Reference](#-api-reference)
+- [🤖 Discord Bot](#-discord-bot-setup)
+- [🔐 Environment Variables](#-environment-variables)
+- [🔮 Future Improvements](#-future-improvements)
 
-1. **Live monitoring** of all 15 office devices (fans + lights) on a single
-   dark dashboard.
-2. **Automatic simulation** of device activity every 15 seconds (real hardware
-   can be plugged in later — the API surface is identical).
-3. **Smart alerts** for:
-   - Devices ON outside office hours (9 AM – 5 PM, weekdays).
-   - Devices ON for more than 2 hours continuously.
-   - Rooms drawing more than 120 W simultaneously (possible unnecessary usage).
-4. **Discord bot** for admins to check status, per-room usage, total energy,
-   and alerts from anywhere.
-5. **Supabase persistence** so historical events are queryable later.
+<br>
 
 ---
 
-## 🚀 Features
+## 🧩 The Problem
 
-- 🟢 Real-time device ON/OFF updates over Socket.io (no page refresh).
-- 🗺️ Interactive office floor map with all 15 devices — fans spin when ON,
-  lights glow yellow when ON, both gray out when OFF.
-- 📊 KPI dashboard: active devices out of 15, current watts, max possible
-  watts (495 W), load %, fans/lights ON counts.
-- 📈 Office-wide load bar + per-room usage bars.
-- 🚨 Color-coded alerts panel (LOW / MEDIUM / HIGH severity).
-- 🤖 Discord bot commands: `!status`, `!room`, `!usage`, `!alerts`, `!help`.
-- 🔌 Click any device marker to manually toggle it (writes back to Supabase).
-- 🛡️ Graceful degradation: backend keeps working even if Supabase is empty or
-  Discord token is missing.
-- 📱 Responsive layout (mobile + desktop).
-- ⚡ Hackathon demo-friendly: simulator ticks every 15 seconds so the dashboard
-  is always alive.
+Small offices waste real electricity because nobody can see it happening:
+
+- Lights left ON overnight or over the weekend
+- Fans running for hours in empty rooms
+- No dashboard answering *"how much power are we drawing right now?"*
+- No alerting when devices run outside office hours
+
+What you can't see, you can't fix.
+
+<br>
+
+## ✅ The Solution
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### 🗺️ Live Visibility
+A real-time top-view floor map of all **15 devices** across 3 rooms — fans spin, lights glow, everything updates without a page refresh.
+
+</td>
+<td width="50%" valign="top">
+
+#### 🚨 Smart Alerts
+Automatic detection of devices ON outside office hours, running 2+ hours continuously, or a room silently drawing 120W+.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 🤖 Discord Remote Control
+`!status`, `!room`, `!usage`, `!alerts` — check the whole office from any channel, no browser needed.
+
+</td>
+<td width="50%" valign="top">
+
+#### 🛡️ Never Goes Down
+The deployed demo needs no backend, no database, no API keys — it can't 500, sleep, or hit a CORS wall during judging.
+
+</td>
+</tr>
+</table>
+
+<br>
+
+---
+
+## ✨ Features
+
+- 🟢 Real-time device ON/OFF updates — Socket.io in full-stack mode, `setInterval` in static demo mode, **identical UI either way**
+- 🗺️ Interactive floor map — click any device marker to toggle it
+- 📊 KPI dashboard — active devices, current watts, max possible watts (495W), load %, fans/lights ON
+- 📈 Office-wide + per-room usage bars
+- 🚨 Color-coded alerts (LOW / MEDIUM / HIGH severity)
+- 🤖 Full Discord bot: `!status` `!room <name>` `!usage` `!alerts`
+- 🛡️ Backend degrades gracefully — keeps working with no Supabase, no Discord token, or both
+- 📱 Fully responsive, mobile + desktop
+- ⚡ 15-device, 495W-max spec (2 fans + 3 lights per room — no ACs, corrected from the original problem statement's internal math error)
+
+<br>
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer       | Tech                                                |
-| ----------- | --------------------------------------------------- |
-| Frontend    | React 18, Vite 5, Tailwind CSS 3, Axios, Socket.io-client |
-| Backend     | Node.js 18+, Express 4, Socket.io 4, Discord.js 14  |
-| Database    | Supabase (PostgreSQL)                               |
-| Deployment  | Frontend → Vercel/Netlify, Backend → Fly.io (free), DB → Supabase |
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18 · Vite 5 · Tailwind CSS 3 |
+| **Backend** | Node.js 18+ · Express 4 · Socket.io 4 · Discord.js 14 |
+| **Database** | Supabase (PostgreSQL) |
+| **Deployment** | Frontend → Vercel/Netlify (static) · Backend → Fly.io · DB → Supabase |
 
-**Not used (deliberately):** Replit deployments — as of 2026 Replit billing is
-usage-based with no default spending cap, and a 24/7 Socket.io + Discord bot
-process is exactly the profile users have reported $300–500+/month surprise
-charges for. Render/Railway free tiers either sleep (Render) or run on
-burnable trial credit, not a permanent free tier (Railway). Fly.io's free
-allowance (3 shared-cpu VMs) is the best current fit for a process that must
-stay alive for Socket.io + the Discord bot — see the Backend Deployment
-section below for exact steps, plus a Render fallback if you'd rather not
-add a card.
+<details>
+<summary><b>🤔 Why Fly.io and not Replit / Railway / Render?</b></summary>
+
+<br>
+
+This wasn't an arbitrary pick — it came from hitting real walls with each option:
+
+- **Replit** — deployments are usage-based with **no default spending cap**. A 24/7 Socket.io + Discord bot connection is exactly the workload multiple users have reported **$300–500+/month surprise bills** for.
+- **Railway** — WebSockets work fine, but there's no permanent free tier anymore, only burnable trial credit.
+- **Render** — genuinely free, no card required, but free web services **sleep after ~15 min idle**, dropping the Socket.io connection and taking the Discord bot offline until the next request wakes it.
+- **Fly.io** ✅ — a real, current free allowance (3 shared-cpu VMs), native WebSocket support, no sleep. Requires a card for identity verification, but stays free within the allowance. `Dockerfile` + `fly.toml` are included, ready to deploy.
+
+</details>
+
+<br>
 
 ---
 
-## 🏛️ Architecture
+## 🏛️ Architecture — Two Modes, One UI
+
+The same React components render identically in both modes — only the data source underneath changes.
+
+<table>
+<tr>
+<th width="50%">🟢 Static Demo Mode <sub>(currently live)</sub></th>
+<th width="50%">🔵 Full-Stack Mode <sub>(backend/, fully working)</sub></th>
+</tr>
+<tr>
+<td valign="top">
 
 ```
-Simulated Devices (15 fans/lights)
+mockData.js
+(browser, setInterval 5s)
+      ↓
+mockApiClient.js +
+mockSocketClient.js
+      ↓
+Dashboard.jsx
+(unchanged)
+      ↓
+Header · PowerSummary ·
+OfficeLayout · DeviceMarker ·
+RoomPanel · DeviceCard ·
+AlertsPanel
+```
+
+Zero network calls. Zero env vars. Can't fail during judging.
+
+</td>
+<td valign="top">
+
+```
+Simulated Devices
       ↓
 Backend Simulator (15s tick)
       ↓
-Supabase PostgreSQL  ←──┐
-      ↓                 │
-Express API + Socket.io │ (discordService reads from DB)
-      ↓                 │
-Web Dashboard       Discord Bot
-      ↓                 ↓
-   User / Admin
+Supabase PostgreSQL
+      ↓
+Express API + Socket.io
+      ↓
+Web Dashboard   Discord Bot
+      ↓              ↓
+    User / Admin
 ```
 
-- The simulator writes status changes to Supabase and emits three Socket.io
-  events: `devices:update`, `usage:update`, `alerts:update`.
-- The web dashboard subscribes to those events and re-renders without a page
-  refresh.
-- The Discord bot reads from Supabase on demand (no Socket.io needed).
-- See `docs/architecture.md` for the full diagram.
+Real persistence, real bot, deployable to Fly.io in ~5 minutes.
+
+</td>
+</tr>
+</table>
+
+Switching between them is a **2-line import change** in `Dashboard.jsx` — see [`docs/architecture.md`](docs/architecture.md) for the full diagram and the exact revert steps.
+
+<br>
 
 ---
 
-## 📁 Folder Structure
+## 🧠 Key Engineering Decisions
 
-```
-officepulse/
-├── README.md
-├── .gitignore
-├── .env.example
-├── backend/
-│   ├── package.json
-│   ├── server.js
-│   ├── socket.js
-│   ├── .env.example
-│   ├── config/supabase.js
-│   ├── data/seedDevices.js
-│   ├── routes/{deviceRoutes,usageRoutes,alertRoutes}.js
-│   ├── services/{simulatorService,powerService,alertService,discordService}.js
-│   ├── utils/{timeUtils,formatters}.js
-│   └── discord/bot.js
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── index.html
-│   ├── .env.example
-│   └── src/
-│       ├── main.jsx, App.jsx
-│       ├── api/apiClient.js
-│       ├── socket/socketClient.js
-│       ├── pages/Dashboard.jsx
-│       ├── components/{Header,OfficeLayout,DeviceMarker,RoomPanel,
-│       │               DeviceCard,PowerSummary,AlertsPanel}.jsx
-│       ├── utils/{deviceHelpers,powerHelpers}.js
-│       └── styles/index.css
-├── supabase/{schema.sql,seed.sql}
-├── docs/{architecture,api-documentation,discord-bot-commands,
-│         demo-script,submission-checklist}.md
-└── diagrams/README.md
-```
+<details>
+<summary><b>⚖️ Resolving the spec's own math error: 15 devices, no AC</b></summary>
+
+<br>
+
+The original problem statement says *"2 fans and 3 lights (so 6 devices per room, 18 devices total)"* — but 2+3=5, not 6. Two valid readings exist: add an AC to reach 6/room, or treat "18" as the typo. We went with the **15-device reading** (no AC) per explicit correction — every seed, calculation, and doc reflects this consistently. Max load: 3 rooms × (2×60W + 3×15W) = **495W**.
+
+</details>
+
+<details>
+<summary><b>🐛 Three real bugs found by actually running the code, not just reading it</b></summary>
+
+<br>
+
+| Bug | Root cause | Impact |
+|---|---|---|
+| `device_events` never populated | `new_status` referenced an undefined variable instead of the `newStatus` parameter | Every Supabase audit-log insert silently threw and failed |
+| Discord bot said "no devices" without Supabase | `discordService.js` returned `[]` immediately instead of falling back to the shared in-memory store | Violated the "one source of truth" requirement — bot and dashboard disagreed |
+| Fans never visually spun | Custom CSS referenced `animation: spin-fan` / `pulse-soft`, but those `@keyframes` only existed under Tailwind's internal names (`spin360`/`pulseGlow`) | The bonus-points animation was coded but invisible |
+
+All three were caught by booting the real server and hitting every endpoint, not by reading the code and assuming it worked.
+
+</details>
+
+<details>
+<summary><b>🎭 Why the live demo is static, and why that's a feature, not a shortcut</b></summary>
+
+<br>
+
+After repeated free-tier deployment failures (Render sleep cycles, Replit billing risk), the frontend was rearchitected so `mockData.js` reproduces the **exact same** device seed, wattage math, and alert rules as the real backend — just running with `setInterval` in the browser. Room-level wattages always sum to the exact total shown (e.g. 90+90+165=345W); there's no fake random jitter that could ever visibly disagree with itself under a judge's scrutiny. The full backend remains untouched in `backend/` for local demos, the Discord bot, and future redeployment.
+
+</details>
+
+<br>
 
 ---
 
-## 🗄️ Supabase Setup
+## 🚀 Quick Start
 
-1. Create a project at <https://supabase.com>.
-2. Open the **SQL Editor** and run `supabase/schema.sql`.
-3. Then run `supabase/seed.sql` to populate the **15 devices** (3 rooms × 5).
-4. Go to **Project Settings → API** and copy:
-   - `Project URL` → `SUPABASE_URL`
-   - `service_role` secret → `SUPABASE_SERVICE_ROLE_KEY`
-   (⚠️ Never expose the service_role key in the frontend.)
-5. Verify: `SELECT count(*) FROM devices;` should return **15**.
-
----
-
-## 🖥️ Backend — Local & Free Deployment
-
-The backend cannot be serverless: Socket.io and the Discord bot both need
-one process that stays alive and holds open connections. Vercel/Netlify
-functions are request-scoped and will not work for this piece — only the
-frontend goes there.
-
-### Local
+### Static demo (what's deployed — no setup needed)
 
 ```bash
-cd backend
-cp .env.example .env
-# Fill SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DISCORD_TOKEN, FRONTEND_ORIGIN
+cd frontend
 npm install
-npm start
-# Server runs on http://localhost:5000
+npm run build   # or npm run dev for local preview
 ```
 
-### Option A — Fly.io (recommended, genuinely free)
+No environment variables. No backend. Deploys to Vercel/Netlify as-is.
 
-Fly.io's free allowance (3 shared-cpu-1x-256mb VMs) covers this backend with
-room to spare, and it keeps a real persistent connection alive for Socket.io
-and the Discord bot — no sleep, no cold starts. A `Dockerfile` and `fly.toml`
-are already included.
+<details>
+<summary><b>🔧 Full-stack mode — run the real backend + Discord bot locally</b></summary>
+
+<br>
+
+**1. Supabase**
+```bash
+# In the Supabase SQL Editor, run in order:
+supabase/schema.sql
+supabase/seed.sql        # seeds all 15 devices
+```
+
+**2. Backend**
+```bash
+cd backend
+cp .env.example .env     # fill SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DISCORD_TOKEN
+npm install
+npm start                # → http://localhost:5000
+```
+
+**3. Point the frontend at it** (see `docs/architecture.md` for the exact 2-line revert in `Dashboard.jsx`), then:
 
 ```bash
-brew install flyctl        # or: curl -L https://fly.io/install.sh | sh
-fly auth signup             # or `fly auth login` if you already have an account
+cd frontend
+npm install
+npm run dev               # → http://localhost:5173
+```
+
+**4. Deploy the backend for real** (Fly.io, free):
+```bash
+curl -L https://fly.io/install.sh | sh
+fly auth signup
 cd backend
-fly launch --no-deploy      # detects fly.toml — say NO to adding Postgres/Redis
+fly launch --no-deploy    # detects fly.toml — say no to Postgres/Redis
 fly secrets set \
   SUPABASE_URL=https://your-project.supabase.co \
   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key \
@@ -217,183 +301,104 @@ fly secrets set \
 fly deploy
 ```
 
-Your backend is now live at `https://officepulse-backend.fly.dev` (or
-whatever name you chose). Health check:
-`https://officepulse-backend.fly.dev/health`.
+</details>
 
-> **Honest caveat:** Fly.io asks for a card on signup for identity
-> verification. Staying inside the free allowance (1 machine, this app's
-> size) means you should not be charged, but set a spending alert in the
-> Fly dashboard if that matters to you.
-
-### Option B — Render (no card required, but sleeps when idle)
-
-Render's free web services are genuinely free with no card, but they spin
-down after ~15 minutes of no traffic and take 30–60s to wake back up — which
-means the Socket.io connection drops and the Discord bot goes offline while
-asleep. A `render.yaml` is included for a one-click Blueprint deploy.
-
-```bash
-# Push to GitHub, then in Render: New → Blueprint → select your repo
-# Add the same env vars as above (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
-# DISCORD_TOKEN, FRONTEND_ORIGIN) in the Render dashboard
-```
-
-**Keep-alive workaround for a demo/judging window:** point a free uptime
-pinger (e.g. UptimeRobot or cron-job.org, both free) at
-`https://your-app.onrender.com/health` every 5–10 minutes. This keeps the
-service — and the Discord bot's connection — awake for as long as the
-pinger runs, at zero cost.
-
-### Why not Replit / Railway?
-
-- **Replit**: deployments moved to usage-based billing with no default cap.
-  A 24/7 Socket.io + Discord bot is precisely the workload multiple users
-  have reported $300–500+/month bills for. Fine for local editing, risky to
-  deploy long-running here.
-- **Railway**: WebSockets work on every plan, but there is no permanent free
-  tier anymore — you run on trial credit that eventually runs out.
+<br>
 
 ---
 
-## 🎨 Frontend — Local & Vercel/Netlify Deployment
+## 🔌 API Reference
 
-### Local
+<sub>Full request/response examples in <a href="docs/api-documentation.md">docs/api-documentation.md</a></sub>
 
-```bash
-cd frontend
-cp .env.example .env
-# Fill VITE_API_BASE_URL and VITE_SOCKET_URL with your backend URL
-npm install
-npm run dev
-# Dashboard runs on http://localhost:5173
-```
+| Method | Endpoint | Description |
+|:---:|---|---|
+| `GET` | `/health` | Backend health + config status |
+| `GET` | `/api/devices` | All 15 devices (live snapshot) |
+| `GET` | `/api/devices/:id` | Single device |
+| `PATCH` | `/api/devices/:id/toggle` | Manually toggle a device |
+| `GET` | `/api/usage` | Total + room-wise power usage |
+| `GET` | `/api/alerts` | Current alerts |
+| `GET` | `/api/rooms/:roomName` | Devices + usage for one room |
 
-### Vercel
-
-1. Push the repo to GitHub.
-2. Import the repo in Vercel.
-3. Set:
-   - **Root Directory** → `frontend`
-   - **Build Command** → `npm run build`
-   - **Output Directory** → `dist`
-   - **Environment Variables**:
-     - `VITE_API_BASE_URL` → `https://officepulse-backend.fly.dev` (or your Render URL)
-     - `VITE_SOCKET_URL` → same URL as above
-4. Deploy. Vercel gives you a `https://officepulse.vercel.app` style URL.
-
-### Netlify
-
-1. Push repo to GitHub.
-2. In Netlify → **Add new site → Import from Git**.
-3. Set:
-   - **Base directory** → `frontend`
-   - **Build command** → `npm run build`
-   - **Publish directory** → `frontend/dist`
-   - **Environment variables** → same as Vercel above.
-4. Deploy.
+<br>
 
 ---
 
 ## 🤖 Discord Bot Setup
 
-1. Go to the <https://discord.com/developers/applications> page.
-2. **New Application** → name it `OfficePulse`.
-3. **Bot** tab → **Add Bot** → copy the **Token** (this is `DISCORD_TOKEN`).
-4. Under **Privileged Gateway Intents**, enable:
-   - **MESSAGE CONTENT INTENT**
-   - **SERVER MEMBERS INTENT** (optional)
-5. **OAuth2 → URL Builder** → select scopes `bot` + permissions `Send Messages`
-   + `Read Message History`. Open the generated URL to invite the bot to your
-   server.
-6. Add `DISCORD_TOKEN` as a secret on whichever host runs the backend
-   (`fly secrets set DISCORD_TOKEN=...` for Fly.io, the Render dashboard's
-   env vars for Render, or your local `backend/.env`).
-7. Restart the backend — you should see `[discord] Bot online as ...`.
-8. In any channel the bot can read, type `!status`.
+<sub>Requires full-stack mode — the bot lives in <code>backend/discord/bot.js</code></sub>
 
-**The backend stays alive even if the Discord token is missing** — the bot is
-optional.
+1. [Discord Developer Portal](https://discord.com/developers/applications) → **New Application** → name it `OfficePulse`
+2. **Bot** tab → **Add Bot** → copy the token → this is `DISCORD_TOKEN`
+3. Under **Privileged Gateway Intents**, enable **MESSAGE CONTENT INTENT**
+4. **OAuth2 → URL Builder** → scope `bot`, permissions `Send Messages` + `Read Message History` → open the generated URL to invite it
+5. Set `DISCORD_TOKEN` on whichever host runs the backend, restart, confirm `[discord] Bot online as ...` in the logs
+6. Try `!status` in any channel the bot can read
 
----
+> The backend never crashes if this token is missing — the bot is entirely optional.
 
-## 🔌 API Endpoints
-
-See `docs/api-documentation.md` for full request/response examples.
-
-| Method | Endpoint                       | Description                              |
-| ------ | ------------------------------ | ---------------------------------------- |
-| GET    | `/health`                      | Backend health + config status           |
-| GET    | `/api/devices`                 | All 15 devices (live snapshot)           |
-| GET    | `/api/devices/:id`             | Single device                            |
-| PATCH  | `/api/devices/:id/toggle`      | Manually toggle a device                 |
-| GET    | `/api/usage`                   | Total + room-wise usage                  |
-| GET    | `/api/alerts`                  | Current alerts                           |
-| GET    | `/api/rooms/:roomName`         | Devices + usage for a single room        |
-
----
-
-## 🧪 Demo Instructions
-
-1. Open the frontend URL (Vercel/Netlify).
-2. Watch the office floor map — all 15 devices update every 15s (fans spin,
-   lights glow).
-3. Click any device marker to manually toggle it.
-4. Watch the alerts panel populate when devices run too long or outside office
-   hours.
-5. From Discord, run `!status`, `!room drawing`, `!usage`, `!alerts`.
-6. See `docs/demo-script.md` for a 3-minute demo video script.
+<br>
 
 ---
 
 ## 🔐 Environment Variables
 
-### Backend (`backend/.env`)
+<table>
+<tr><th>Backend (<code>backend/.env</code>)</th><th>Frontend (<code>frontend/.env</code>)</th></tr>
+<tr>
+<td valign="top">
 
-| Key                       | Description                              |
-| ------------------------- | ---------------------------------------- |
-| `SUPABASE_URL`            | Supabase project URL                     |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service_role key (server-only) |
-| `DISCORD_TOKEN`           | Discord bot token (optional)             |
-| `PORT`                    | Backend port (default 5000)              |
-| `FRONTEND_ORIGIN`         | Frontend URL for CORS                    |
+| Key | Description |
+|---|---|
+| `SUPABASE_URL` | Project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only secret |
+| `DISCORD_TOKEN` | Bot token *(optional)* |
+| `PORT` | Default `5000` |
+| `FRONTEND_ORIGIN` | For CORS |
 
-### Frontend (`frontend/.env`)
+</td>
+<td valign="top">
 
-| Key                  | Description             |
-| -------------------- | ----------------------- |
-| `VITE_API_BASE_URL`  | Backend REST base URL   |
-| `VITE_SOCKET_URL`    | Socket.io server URL    |
+**None required** for the current static demo build.
+
+Only needed if reverted to full-stack mode:
+
+| Key | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Backend REST URL |
+| `VITE_SOCKET_URL` | Socket.io URL |
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
 ## 🔮 Future Improvements
 
-- Plug in **real IoT sensors** (ESP32 + relay modules) instead of the simulator.
-- Add **AC units** in a future iteration (current scope is fans + lights only).
-- **Historical charts** (last 24h / 7d energy usage) using `device_events`.
-- **Slack / Microsoft Teams** bot in addition to Discord.
-- **Schedule-based rules**: auto-OFF everything at 7 PM.
-- **User auth** + role-based access (admin vs viewer).
-- **Mobile push notifications** for HIGH severity alerts.
-- **Cost estimator**: multiply kWh by local tariff.
-- **Multi-floor / multi-building** support.
+- [ ] Plug in real IoT sensors (ESP32 + relay modules) in place of the simulator
+- [ ] Historical usage charts (24h / 7d) from `device_events`
+- [ ] Slack / Microsoft Teams bot alongside Discord
+- [ ] Schedule-based rules — auto-OFF everything at 7 PM
+- [ ] User auth + role-based access (admin vs viewer)
+- [ ] Cost estimator — kWh × local tariff
+- [ ] Multi-floor / multi-building support
+
+<br>
 
 ---
 
-## 📚 Documentation Index
+<div align="center">
 
-- `docs/architecture.md` — system architecture + diagram
-- `docs/api-documentation.md` — REST API reference with example responses
-- `docs/discord-bot-commands.md` — Discord bot command reference
-- `docs/demo-script.md` — 3-minute demo video script
-- `docs/submission-checklist.md` — pre-submission checklist
+### Built with a real backend, a real bug list, and a live demo that can't go down.
 
----
+<sub>MIT License · Built for hackathon fun</sub>
 
-## 📜 License
+<br>
 
-MIT — free to use, modify, and demo. Built for hackathon fun.
-#   o f f i c e p u l s e  
- #   o f f i c e p u l s e  
- 
+![Made with care](https://img.shields.io/badge/Made_with-React_+_Node.js-22c55e?style=for-the-badge)
+
+</div>
